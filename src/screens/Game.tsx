@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useEffect, useState } from "react";
 import { Chess } from "chess.js";
 import { useSocket } from "../hooks/useSocket";
@@ -14,6 +15,7 @@ const Game = () => {
   const [board, setBoard] = useState(chess.board());
   const [started, setStarted] = useState(false);
   const navigate = useNavigate();
+  const [match,setmatch] = useState(false);
 
   useEffect(() => {
     if (!socket) {
@@ -65,6 +67,7 @@ const Game = () => {
   }, [socket, chess, navigate]);
 
   const handlePlayButton = () => {
+    setmatch(true)
     if (socket) {
       socket.send(
         JSON.stringify({
@@ -74,28 +77,35 @@ const Game = () => {
     }
   };
 
-  if (!socket) {
-    return <div>Connecting...</div>;
-  }
+  
 
   return (
-    <div className="bg-black">
-      <div className="max-w-screen-lg flex m-auto">
-        <div className="w-1/2 pl-10">
+    <div className="bg-black h-screen">
+      <div className="max-w-screen-lg flex flex-col lg:flex-row m-auto lg:p-5 pt-7 pr-3">
+        <div className="w-full lg:w-3/4 lg:pl-10 pl-3" >
+        {socket === null ? (
+          // Render the upper chessboard when socket is null
+          <div>
+            <Chessboard board={board} />
+          </div>
+        ) : (
+          // Render the lower chessboard when socket is not null
           <Chessboard
             board={board}
             socket={socket}
             setBoard={setBoard}
             chess={chess}
           />
+        )}
+
         </div>
         <div className="w-1/2">
           {!started && (
             <button
               onClick={handlePlayButton}
-              className="p-3 m-16 bg-green-500"
+              className="p-3 lg:m-16 bg-green-500 rounded hover:bg-sky-700 w-40 m-10"
             >
-              Play Now
+              {match?"Matching...":"Play Now"}
             </button>
           )}
         </div>
